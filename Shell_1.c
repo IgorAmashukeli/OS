@@ -6,12 +6,18 @@
 #include <sys/wait.h>
 
 
+// exit
+#define EXIT_FAIL\
+    FREE_ARGUMENTS\
+    exit(EXIT_FAILURE);\
+
+
 // create child process
-// if fork failed, return from exec_command function
+// if fork failed, free memory and return from exec_command function
 #define FORK \
     int pid = fork(); \
     if (pid == -1) { \
-        exit(EXIT_FAILURE); \
+        EXIT_FAIL\
     } \
 
 
@@ -20,18 +26,18 @@
     if (pid == 0) {\
         child_work(argument_list);\
     } else {\
-        parent_work(pid);\
+        parent_work(tokenizer, argument_list, pid);\
     }
 
 
 // wait for a child to execute
-// if waitpid ended with -1, exit with EXIT_FAILURE
+// if waitpid ended with -1, free memory exit with EXIT_FAILURE
 // if status of child is not 0, ignore
 #define WAIT_CHILD \
     int status; \
     int code = waitpid(child_pid, &status, 0); \
     if (code == -1) {\
-        exit(EXIT_FAILURE); \
+        EXIT_FAIL\
     }
 
 
@@ -133,7 +139,7 @@ void tokenizer_init(struct tokenizer *tokenizer, char *line)
         char *start = cur;
 
         // iterate to the position after the end of the word
-        while (*cur != ' ' && *cur != '\t' && *cur != '\n') {
+        while (*cur && *cur != ' ' && *cur != '\t' && *cur != '\n') {
             ++cur;
         }
 
@@ -195,13 +201,12 @@ int get_user_line(char **line, size_t *maxlen)
 
 
 void child_work(char* argument_list[]) {
-
     // change child process to run the command
     // stdin and stdout remain the same
     EXECUTE
 }
 
-void parent_work(int child_pid) {
+void parent_work(struct tokenizer* tokenizer, char* argument_list[], int child_pid) {
     // parent waits for a child to end the work
     WAIT_CHILD
 }
