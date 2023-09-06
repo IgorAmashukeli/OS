@@ -115,6 +115,7 @@ do {\
 #define CHECK_EMPTY(tokenizer) \
 do {\
     if (tokenizer->token_count == 0 || tokenizer->head == NULL) {\
+        tokenizer_free(tokenizer);\
         return; \
     }\
 } while (false)\
