@@ -480,7 +480,7 @@ do {\
    if (output_redir) {\
     saved_stdout_fd = dup(STDOUT_FILENO);\
     if (saved_stdout_fd == -1) {\
-            EXIT_FAIL_WITHOUT_FREE(in_fd, out_fd, input_redir, output_redir, in_file_name, out_file_name, argument_list);\
+        EXIT_FAIL_WITHOUT_FREE(in_fd, out_fd, input_redir, output_redir, in_file_name, out_file_name, argument_list);\
     }\
    }\
 }while(false)\
