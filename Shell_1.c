@@ -88,6 +88,7 @@ while (i != tokenizer->token_count) \
     int code = execvp(command, argument_list); \
     if (code == -1) { \
         printf("Command not found\n");\
+        exit(EXIT_SUCCESS);\
     }
 
 
