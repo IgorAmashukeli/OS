@@ -9,6 +9,7 @@
 // exit
 #define EXIT_FAIL\
     FREE_ARGUMENTS\
+    tokenizer_free(tokenizer);\
     exit(EXIT_FAILURE);\
 
 
@@ -274,4 +275,3 @@ int main()
     // while loop ended -> found EOF -> return 0
     return 0;
 }
-
