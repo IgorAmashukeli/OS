@@ -200,15 +200,6 @@ do {\
 
 
 
-// close everything and exit
-#define EXIT_FAIL_WITHOUT_FREE(in_fd, out_fd, input_redir, output_redir, in_file_name, out_file_name, argument_list, tokenizer)\
-do {\
-    CLOSE(in_fd, out_fd, input_redir, output_redir, in_file_name, out_file_name, argument_list, false, tokenizer);\
-    exit(EXIT_FAILURE);\
-} while(false)\
-
-
-
 // free memory and exit
 #define EXIT_FAIL_WITHOUT_CLOSE(in_file_name, out_file_name, input_redir, output_redir, argument_list, tokenizer)\
 do {\
@@ -219,10 +210,15 @@ do {\
 
 
 // close everything, free memory and exit
-#define EXIT_FAIL(in_file_name, out_file_name, in_fd, out_fd, input_redir, output_redir, argument_list, to_free, tokenizer)\
+#define EXIT_FAIL(in_file_name, out_file_name, in_fd, out_fd, input_redir, output_redir, argument_list, tokenizer)\
 do {\
-    CLOSE(in_fd, out_fd, input_redir, output_redir, in_file_name, out_file_name, argument_list, to_free, tokenizer);\
-    FREE_MEMORY(in_file_name, out_file_name, input_redir, output_redir, argument_list, tokenizer);\
+    CLOSE(in_fd, out_fd,\
+    input_redir, output_redir,\
+    in_file_name, out_file_name,\
+    argument_list, tokenizer);\
+    FREE_MEMORY(in_file_name, out_file_name,\
+    input_redir, output_redir,\
+    argument_list, tokenizer);\
     exit(EXIT_FAILURE);\
 } while(false)\
 
@@ -367,22 +363,18 @@ do{\
 // 2) we are running this macros in parent process -> there is need to free memory
 //
 // => therefore, based on variable to_free, we either free memory and exit or just exit
-#define CLOSE(in_fd, out_fd, input_redir, output_redir, in_file_name, out_file_name, argument_list, to_free, tokenizer)\
+#define CLOSE(in_fd, out_fd, input_redir, output_redir, in_file_name, out_file_name, argument_list, tokenizer)\
 do {\
     if (input_redir) {\
         int code = close(in_fd);\
-        if (code == -1 && to_free) {\
+        if (code == -1) {\
             EXIT_FAIL_WITHOUT_CLOSE(in_file_name, out_file_name, input_redir, output_redir, argument_list, tokenizer);\
-        } else if (code == -1) {\
-            exit(EXIT_FAILURE);\
         }\
     }\
     if (output_redir) {\
         int code = close(out_fd);\
-        if (code == -1 && to_free) {\
+        if (code == -1) {\
             EXIT_FAIL_WITHOUT_CLOSE(in_file_name, out_file_name, input_redir, output_redir, argument_list, tokenizer);\
-        } else if (code == -1) {\
-            exit(EXIT_FAILURE);  \
         }\
     }\
 } while(false)\
@@ -433,7 +425,10 @@ do {\
 do {\
     pid = fork(); \
     if (pid == -1) { \
-        EXIT_FAIL(in_file_name, out_file_name, in_fd, out_fd, input_redir, output_redir, argument_list, true, tokenizer);\
+        EXIT_FAIL(in_file_name, out_file_name,\
+        in_fd, out_fd,\
+        input_redir, output_redir,\
+        argument_list, tokenizer);\
     } \
 } while (false)\
     
@@ -462,13 +457,16 @@ do {\
 // if status of child is not 0, ignore
 // if waitpid ended with "-1", free memory and exit
 // (no need to close files, cause parent does it before waiting child)
-#define WAIT_CHILD(child_pid, in_file_name, out_file_name, input_redir, output_redir, argument_list, tokenizer) \
+#define WAIT_CHILD(child_pid, in_file_name, out_file_name, in_fd, out_fd, input_redir, output_redir, argument_list, tokenizer) \
 do\
 {\
     int status; \
     int code = waitpid(child_pid, &status, 0); \
     if (code == -1) {\
-        EXIT_FAIL_WITHOUT_CLOSE(in_file_name, out_file_name, input_redir, output_redir, argument_list, tokenizer);\
+        EXIT_FAIL(in_file_name, out_file_name,\
+        in_fd, out_fd,\
+        input_redir, output_redir,\
+        argument_list, tokenizer);\
     }\
 } while(false)\
 
@@ -484,7 +482,10 @@ do {\
    if (output_redir) {\
     saved_stdout_fd = dup(STDOUT_FILENO);\
     if (saved_stdout_fd == -1) {\
-        EXIT_FAIL_WITHOUT_FREE(in_fd, out_fd, input_redir, output_redir, in_file_name, out_file_name, argument_list, tokenizer);\
+        EXIT_FAIL(in_file_name, out_file_name,\
+        in_fd, out_fd,\
+        input_redir, output_redir,\
+        argument_list, tokenizer);\
     }\
    }\
 }while(false)\
@@ -500,11 +501,17 @@ do {\
     if (output_redir) {\
         int code = dup2(saved_stdout_fd, 1);\
         if (code == -1) {\
-            EXIT_FAIL_WITHOUT_FREE(in_fd, out_fd, input_redir, output_redir, in_file_name, out_file_name, argument_list, tokenizer);\
+            EXIT_FAIL(in_file_name, out_file_name,\
+             in_fd, out_fd,\
+             input_redir, output_redir,\
+             argument_list, tokenizer);\
         }\
         code = close(saved_stdout_fd);\
         if (code == -1) {\
-            EXIT_FAIL_WITHOUT_FREE(in_fd, out_fd, input_redir, output_redir, in_file_name, out_file_name, argument_list, tokenizer);\
+            EXIT_FAIL(in_file_name, out_file_name,\
+             in_fd, out_fd,\
+             input_redir, output_redir,\
+             argument_list, tokenizer);\
         }\
     }\
 } while(false)\
@@ -520,13 +527,19 @@ do{\
     if (input_redir) {\
         int code = dup2(in_fd, STDIN_FILENO);\
         if (code == -1) {\
-            EXIT_FAIL_WITHOUT_FREE(in_fd, out_fd, input_redir, output_redir, in_file_name, out_file_name, argument_list, tokenizer);\
+            EXIT_FAIL(in_file_name, out_file_name,\
+             in_fd, out_fd,\
+             input_redir, output_redir,\
+             argument_list, tokenizer);\
         }\
     }\
     if (output_redir) {\
         int code = dup2(out_fd, STDOUT_FILENO);\
         if (code == -1) {\
-            EXIT_FAIL_WITHOUT_FREE(in_fd, out_fd, input_redir, output_redir, in_file_name, out_file_name, argument_list, tokenizer);\
+            EXIT_FAIL(in_file_name, out_file_name,\
+             in_fd, out_fd,\
+             input_redir, output_redir,\
+             argument_list, tokenizer);\
         }\
     }\
 } while(false)\
@@ -728,7 +741,7 @@ void child_work(int in_fd, int out_fd,
     DUP2(in_fd, out_fd, input_redir, output_redir, in_file_name, out_file_name, argument_list, tokenizer);
 
     // close redundant descriptors (false means - no need to free memory)
-    CLOSE(in_fd, out_fd, input_redir, output_redir, in_file_name, out_file_name, argument_list, false, tokenizer);
+    CLOSE(in_fd, out_fd, input_redir, output_redir, in_file_name, out_file_name, argument_list, tokenizer);
 
     // execute command
     EXECUTE(saved_stdout_fd, in_fd, out_fd, input_redir, output_redir, in_file_name, out_file_name, argument_list, tokenizer);
@@ -745,10 +758,16 @@ void parent_work(int child_pid,
      char* argument_list[], struct tokenizer* tokenizer) {
 
     // close all files in parent (true means no need to free memory)
-    CLOSE(in_fd, out_fd, input_redir, output_redir, in_file_name, out_file_name, argument_list, true, tokenizer);
+    CLOSE(in_fd, out_fd,
+     input_redir, output_redir,
+     in_file_name, out_file_name,
+     argument_list, tokenizer);
     
     // wait for a child
-    WAIT_CHILD(child_pid, in_file_name, out_file_name, input_redir, output_redir, argument_list, tokenizer);
+    WAIT_CHILD(child_pid, in_file_name, out_file_name,
+     in_fd, out_fd,
+     input_redir, output_redir,
+     argument_list, tokenizer);
 }
 
 

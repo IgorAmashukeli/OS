@@ -25,7 +25,7 @@
 // division of work between parent and child process
 #define DIVIDE_WORK(parent_work, child_work) \
     if (pid == 0) {\
-        child_work(argument_list);\
+        child_work(tokenizer, argument_list);\
     } else {\
         parent_work(tokenizer, argument_list, pid);\
     }
@@ -89,7 +89,7 @@ while (i != tokenizer->token_count) \
     int code = execvp(command, argument_list); \
     if (code == -1) { \
         printf("Command not found\n");\
-        exit(EXIT_SUCCESS);\
+        EXIT_FAIL\
     }
 
 
@@ -202,7 +202,7 @@ int get_user_line(char **line, size_t *maxlen)
 }
 
 
-void child_work(char* argument_list[]) {
+void child_work(struct tokenizer* tokenizer, char* argument_list[]) {
     // change child process to run the command
     // stdin and stdout remain the same
     EXECUTE
