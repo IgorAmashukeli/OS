@@ -81,7 +81,6 @@ no "do while false pattern, because of <<break>>"**/
 
 
 
-
 /** intialise token and shift cur, next token is NULL**/
 #define INIT_TOKEN(cur) \
 do {\
@@ -367,61 +366,6 @@ do {\
     argument_list[command_number][index] = NULL;\
 } while (false)\
 
-
-/**remember position of arguments of the first command
-
-1) at least one command exists
-2) position of the first command argument is 0
-3) we increment index for the next commands
-
-**/
-#define FIRST_POSITION(index, position, argument_positions)\
-do {\
-    index = 0;\
-    position = 0;\
-    argument_positions[index] = position;\
-    ++index;\
-} while (false)\
-
-
-
-/**finds the position of the arguments of the next command
-
-iterate through the argument list, find the next NULL, shift to the next char*
-
-**/
-#define FIND_NEXT_COMMAND(argument_list, position)\
-do {\
-    while(argument_list[position]) {\
-        ++position;\
-    }\
-    ++position;\
-} while (false)\
-
-
-
-
-/**find positions of all arguments
-
-1) find position of the first argument - it is 0
-2) find next NULL (pipe) and command after - it is the next command
-3) this will happen number - 1 times
-(cause after finding the position of the first argument,
-index was incremented by 1
-)
-
-**/
-#define FIND_POSITIONS(argument_list, argument_positions, number)\
-do {\
-    int index;\
-    int position;\
-    FIRST_POSITION(index, position, argument_positions);\
-    while (index != number) {\
-        FIND_NEXT_COMMAND(argument_list, position);\
-        argument_positions[index] = position;\
-        ++index;\
-    }\
-} while (false)
 
 
 
