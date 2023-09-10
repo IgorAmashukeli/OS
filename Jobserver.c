@@ -507,8 +507,6 @@ int main(int argc, char* argv[]) {
     // traverse current directory
     traverse_and_run(".", ".", pipe_fds, k);
 
-    WAIT();
-
     return 0;
 }
 
