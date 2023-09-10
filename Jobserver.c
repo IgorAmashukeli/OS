@@ -163,7 +163,7 @@ do {\
 
 
 
-/**execvp with error checking**/
+/**execv with error checking**/
 #define EXECV(file_name)\
 do {\
     char* arguments[2];\
