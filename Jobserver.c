@@ -163,7 +163,7 @@ do {\
 
 
 
-/**execv with error checking**/
+/**execvp with error checking**/
 #define EXECV(file_name)\
 do {\
     char* arguments[2];\
@@ -376,7 +376,7 @@ void runWatcher(char* file_name, int pipe_fds[2], int k) {
 
 
 
-void traverse_and_run(char* dir_name, char* path, int pipe_fds[2],int k) {
+void traverse_and_run(char* dir_name, char* path, int pipe_fds[2], int k) {
 
     /**traverse subdirectories**/
 
@@ -412,7 +412,12 @@ void traverse_and_run(char* dir_name, char* path, int pipe_fds[2],int k) {
 
             concatenate_path(new_path, path, entry->d_name, slash_adding);
 
-            traverse_and_run(entry->d_name, new_path, pipe_fds, k);
+            pid_t recursive_son;
+            FORK(recursive_son);
+
+            if (recursive_son == 0) {
+                traverse_and_run(entry->d_name, new_path, pipe_fds, k);
+            }
         }
 
     }
@@ -466,6 +471,14 @@ void traverse_and_run(char* dir_name, char* path, int pipe_fds[2],int k) {
             }
         }
     }
+
+    CLOSE_PIPE_END(pipe_fds[0]);
+    CLOSE_PIPE_END(pipe_fds[1]);
+    WAIT();
+
+    CLOSE_DIR(dir);
+    
+    exit(EXIT_SUCCESS);
 }
 
 
@@ -498,3 +511,4 @@ int main(int argc, char* argv[]) {
 
     return 0;
 }
+
