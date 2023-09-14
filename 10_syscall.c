@@ -31,7 +31,7 @@ enum {
     while(1) {};
 
 
-
+int errno;
 
 
 /**check return value from system call, set value for a C function error**/
@@ -45,6 +45,8 @@ int set_ret(int ret) {
 
         // set ret to C value for error
         ret = C_ERROR;
+
+        errno = -ret;
     }
 
     return ret;
@@ -526,6 +528,13 @@ int execve(const char *filename, char *const argv[], char *const envp[]) {
     // set return value and errno according to x86_64 system call conventions
     return set_ret(ret);
 }
+
+
+
+
+
+
+
 
 
 
