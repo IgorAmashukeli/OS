@@ -27,11 +27,9 @@ enum {
 };
 
 
-void no_return_code() {
-    while(true) {
+#define unreachable()\
+    abort();
 
-    }
-}
 
 
 
