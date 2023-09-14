@@ -20,9 +20,18 @@ enum {
     SYS_EXIT = 60,
     SYS_WAIT4 = 61,
 
+    true = 1,
+
     // there is no libc => we will define NULL as 0 here
     NULL = 0
 };
+
+
+void no_return_code() {
+    while(true) {
+
+    }
+}
 
 
 
@@ -358,12 +367,12 @@ void exit(int status) {
     );
 
     // nothing is returned from exit
-    // it sis guaranteed by exit syscall
+    // it is guaranteed by exit syscall
     // but, however, for compiler not to show warnings we need to do something
     // to show there is no return
     // cause compiler thinks we are returning from no-return function here
     // therefore, we can use endless loop, for example
-    while(1){}
+    no_return_code();
 }
 
 
