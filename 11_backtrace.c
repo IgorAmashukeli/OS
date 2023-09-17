@@ -407,3 +407,101 @@ char* addr2name(void* addr)
 
     return function_name;
 }
+
+
+
+
+
+
+
+/**back trace and remember return addresses**/
+int backtrace(void* backtrace[], int limit)
+{
+    // number of found addresses
+    // backtrace[0] contains return address of backtrace
+    int count = 0;
+
+
+    // rbp
+    void* rbp = NULL;
+    // return address
+    void* return_address = NULL;
+
+    // find rbp of current frame
+    asm volatile (
+        // save rbp
+            "movq %%rbp, %0\n\t"
+        // %0 is rbp
+            : "=r"(rbp)
+            :
+            :
+        // Clobbers
+            "memory",
+            "cc"
+    );
+
+
+
+
+
+    // iterate limit times
+    while (count != limit) {
+
+        // iterate through stack frames
+        // (save return address, move to previous rbp)
+        asm volatile (
+                // save return address of the function
+                "movq 8(%%rdx), %%rax\n\t"
+
+                // save old "rbp" variable in "rbp" variable
+                "movq (%%rdx), %%rbx\n\t"
+
+                // Output Operands:
+
+                :
+                // rbx is used for new value of "rbp"
+                "=b"(rbp),
+
+                // rax is used for return_address
+                "=a"(return_address)
+
+
+                // Input Operands
+                :
+                // rdx is used for old value of "rbp"
+                "d"(rbp)
+
+                // clobbers:
+                :
+                "memory",
+
+                // some move can change flags
+                "cc"
+        );
+
+        // found main => break
+
+        // save return address in backtrace[count]:
+        backtrace[count] = return_address;
+        ++count;
+
+        // if return address is not NULL and name is "main"
+        if (return_address && strcmp(addr2name(return_address), "main") == 0) {
+            break;
+        }
+    }
+
+
+    return count;
+}
+
+void print_backtrace()
+{
+    int limit = 1024;
+    void* backtrace_addresses[limit];
+    int count = backtrace(backtrace_addresses, limit);
+    for (size_t i = 0; i < count; ++i) {
+        printf("0x%x %s\n", backtrace_addresses[i],
+         addr2name(backtrace_addresses[i]));
+    }
+}
