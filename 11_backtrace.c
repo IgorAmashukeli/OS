@@ -10,14 +10,6 @@
 #include "backtrace.h"
 
 
-
-#define INDENTIFIER_LENGTH_MAX 256
-
-
-// static memory for function names 
-char function_name_memory[INDENTIFIER_LENGTH_MAX];
-
-
 /**open file with error checking**/
 #define FOPEN(filename, flags, file) \
 do {\
@@ -103,17 +95,10 @@ do {\
     \
     \
     if (shstrtab_section_header_index == SHN_XINDEX) {\
-        Elf64_Shdr* sec_hdr;\
-        \
-        MMAP(Elf64_Shdr*, sec_hdr,\
-        NULL, sizeof(Elf64_Shdr), PROT_READ, MAP_SHARED, fileno(elf_file),\
-        section_offset);\
-        \
-        \
-        shstrtab_section_header_index = sec_hdr->sh_link;\
-        \
-        \
-        MUNMAP(sec_hdr, sizeof(Elf64_Shdr));\
+        Elf64_Shdr sec_hdr;\
+        fseek(elf_file, section_offset, SEEK_SET);\
+        FREAD(&sec_hdr, sizeof(Elf64_Shdr), 1, elf_file);\
+        shstrtab_section_header_index = sec_hdr.sh_link;\
     }\
 } while(false)\
 
@@ -486,7 +471,7 @@ int backtrace(void* backtrace[], int limit)
         ++count;
 
         // if return address is not NULL and name is "main"
-        if (return_address && strcmp(addr2name(return_address), "main") == 0) {
+        if (strcmp(addr2name(return_address), "main") == 0) {
             break;
         }
     }
@@ -501,7 +486,7 @@ void print_backtrace()
     void* backtrace_addresses[limit];
     int count = backtrace(backtrace_addresses, limit);
     for (size_t i = 0; i < count; ++i) {
-        printf("0x%x %s\n", backtrace_addresses[i],
+        printf("0x%lx %s\n", (uintptr_t) backtrace_addresses[i],
          addr2name(backtrace_addresses[i]));
     }
 }
