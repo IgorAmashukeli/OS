@@ -69,8 +69,6 @@ Context* tail = &initial;
 size_t fiber_count = 1;
 
 
-size_t number = 0;
-
 
 /**
 
