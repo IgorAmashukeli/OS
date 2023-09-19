@@ -156,7 +156,7 @@ delete Context
 
 1) extract Context from Context list
 
-2) free stack pointer
+2) free stack
 
 3) free Context
 
@@ -167,7 +167,7 @@ void delete(Context* ctx) {
     // extract from list
     extract(ctx);
 
-    // free stack pointer
+    // free stack
     free(ctx->stack_start);
 
     // free context
