@@ -227,13 +227,13 @@ Context* create() {
     // allocate stack
     MALLOC(void, STACK_FRAME_SIZE, ctx->stack_start);
 
-    // look explanation in uthread_jmp
+    // look explanation in uthread_prepare
     ctx->rsp = ctx->stack_start + STACK_FRAME_SIZE - REG_NUM * 8;
 
     // context is not deleted
     ctx->is_deleted = false;
 
-    // insert current context to the 
+    // insert current context to the list
     insert(ctx);
 
     // increment fiber count
