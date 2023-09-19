@@ -181,16 +181,15 @@ void delete(Context* ctx) {
 
 /**does yield**/
 void uthread_yield() {
-    //printf("%p\n", current);
+    
     // saves current context as old context
     Context* old = current;
-    //printf("inside yield\n");
 
     // move current to the next
     current = current->next;
+
     // do uthread switch
-    uthread_switch(old, current);
-    
+    uthread_switch(old, current);  
 
     // if previous is marked "deleted", delete it
     Context* previous = current->prev;
@@ -255,7 +254,3 @@ void uthread_start(void (*f)(void*), void* data) {
     // yield
     uthread_yield();
 }
-
-
-
-
