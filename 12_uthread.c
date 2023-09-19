@@ -65,7 +65,7 @@ Context* head = &initial;
 Context* tail = &initial;
 
 
-/**number of fibers now working at first it is 1**/
+/**number of fibers now working; at first it is 1**/
 size_t fiber_count = 1;
 
 
