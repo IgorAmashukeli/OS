@@ -49,7 +49,7 @@ typedef struct Context {
 extern void uthread_switch(Context *old, Context *current);
 
 
-/**uthread jump to handler from asm file**/
+/**uthread prepare to handler from asm file**/
 extern void uthread_prepare(Context* ctx, void(*uthread_handle)(void(*func)(void*), void*),void (*f) (void*),
  void* data);
 
