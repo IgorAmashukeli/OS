@@ -1,3 +1,8 @@
 # OS course solutions
 
-1) Here you will find solutions of the tasks from the following course: [OS](https://gitlab.com/slon/shad-os)
+
+The [course (shad OS)](https://gitlab.com/slon/shad-os) authors do not approve of posting problem solutions on a public GitHub repository.
+
+You can access all the task solutions in the repository provided [here](https://github.com/IgorAmashukeli/OS_content).
+
+However, please note that this repository is private, so you need to ask to add you to the list of collaborators.
